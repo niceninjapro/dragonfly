@@ -62,9 +62,7 @@ func (s WheatSeeds) EncodeItem() (name string, meta int16) {
 
 // RandomTick ...
 func (s WheatSeeds) RandomTick(pos cube.Pos, tx *world.Tx, r *rand.Rand) {
-	if tx.Light(pos) < 8 {
-		breakBlock(s, pos, tx)
-	} else if s.Growth < 7 && r.Float64() <= s.CalculateGrowthChance(pos, tx) {
+	if tx.Light(pos) >= 8 && s.Growth < 7 && s.Float64() <= s.CalculateGrowthChance(pos, tx) {
 		s.Growth++
 		tx.SetBlock(pos, s, nil)
 	}
