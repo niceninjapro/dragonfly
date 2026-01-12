@@ -13,6 +13,7 @@ import (
 
 // Web is a block that significantly slows down entities moving through it.
 type Web struct {
+	empty
 	transparent
 }
 
