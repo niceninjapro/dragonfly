@@ -28,6 +28,7 @@ func main() {
 	initSafeFallTracker()
 
 	srv.Listen()
+
 	for p := range srv.Accept() {
 		_ = p
 		p.SetGameMode(world.GameModeSurvival)
