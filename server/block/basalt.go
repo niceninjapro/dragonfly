@@ -59,3 +59,11 @@ func allBasalt() (basalt []world.Block) {
 	}
 	return
 }
+
+// SmeltInfo ...
+func (b Basalt) SmeltInfo() item.SmeltInfo {
+	if b.Polished {
+		return item.SmeltInfo{}
+	}
+	return newSmeltInfo(item.NewStack(SmoothBasalt{}, 1), 0.1)
+}

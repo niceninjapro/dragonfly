@@ -10,6 +10,7 @@ import (
 // init registers all blocks implemented by Dragonfly.
 func init() {
 	world.RegisterBlock(Air{})
+	world.RegisterBlock(MossBlock{})
 	world.RegisterBlock(Amethyst{})
 	world.RegisterBlock(AncientDebris{})
 	world.RegisterBlock(Andesite{Polished: true})
@@ -99,6 +100,7 @@ func init() {
 	world.RegisterBlock(Sand{Red: true})
 	world.RegisterBlock(Sand{})
 	world.RegisterBlock(Sculk{})
+	world.RegisterBlock(SmoothBasalt{})
 	world.RegisterBlock(SeaLantern{})
 	world.RegisterBlock(ShortDryGrass{})
 	world.RegisterBlock(Shroomlight{})
@@ -230,6 +232,7 @@ func init() {
 	registerAll(allCopperLanterns())
 	registerAll(allCopperTorches())
 	registerAll(allCopperTrapdoors())
+	registerAll(allBeeNests())
 }
 
 func init() {
@@ -270,6 +273,7 @@ func init() {
 	world.RegisterItem(CopperTorch{})
 	world.RegisterItem(CraftingTable{})
 	world.RegisterItem(DeadBush{})
+	world.RegisterItem(BeeNest{})
 	world.RegisterItem(DeepslateBricks{Cracked: true})
 	world.RegisterItem(DeepslateBricks{})
 	world.RegisterItem(DeepslateTiles{Cracked: true})
@@ -365,6 +369,7 @@ func init() {
 	world.RegisterItem(Resin{})
 	world.RegisterItem(Sand{Red: true})
 	world.RegisterItem(Sand{})
+	world.RegisterItem(SmoothBasalt{})
 	world.RegisterItem(Sculk{})
 	world.RegisterItem(SculkVein{})
 	world.RegisterItem(SeaLantern{})
@@ -397,6 +402,7 @@ func init() {
 	world.RegisterItem(DecoratedPot{})
 	world.RegisterItem(ShortGrass{})
 	world.RegisterItem(Fern{})
+	world.RegisterItem(MossBlock{})
 	world.RegisterItem(item.Bucket{Content: item.LiquidBucketContent(Lava{})})
 	world.RegisterItem(item.Bucket{Content: item.LiquidBucketContent(Water{})})
 	world.RegisterItem(item.Bucket{Content: item.MilkBucketContent()})

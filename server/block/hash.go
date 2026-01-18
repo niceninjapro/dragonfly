@@ -17,6 +17,7 @@ const (
 	hashBeacon
 	hashBed
 	hashBedrock
+	hashBeeNest
 	hashBeetrootSeeds
 	hashBlackstone
 	hashBlastFurnace
@@ -123,6 +124,7 @@ const (
 	hashMelon
 	hashMelonSeeds
 	hashMobSpawner
+	hashMossBlock
 	hashMossCarpet
 	hashMud
 	hashMudBricks
@@ -177,6 +179,7 @@ const (
 	hashSlab
 	hashSmithingTable
 	hashSmoker
+	hashSmoothBasalt
 	hashSnow
 	hashSoulSand
 	hashSoulSoil
@@ -266,6 +269,10 @@ func (b Bed) Hash() (uint64, uint64) {
 
 func (b Bedrock) Hash() (uint64, uint64) {
 	return hashBedrock, uint64(boolByte(b.InfiniteBurning))
+}
+
+func (b BeeNest) Hash() (uint64, uint64) {
+	return hashBeeNest, uint64(b.Facing)
 }
 
 func (b BeetrootSeeds) Hash() (uint64, uint64) {
@@ -692,6 +699,10 @@ func (MobSpawner) Hash() (uint64, uint64) {
 	return hashMobSpawner, 0
 }
 
+func (MossBlock) Hash() (uint64, uint64) {
+	return hashMossBlock, 0
+}
+
 func (MossCarpet) Hash() (uint64, uint64) {
 	return hashMossCarpet, 0
 }
@@ -906,6 +917,10 @@ func (SmithingTable) Hash() (uint64, uint64) {
 
 func (s Smoker) Hash() (uint64, uint64) {
 	return hashSmoker, uint64(s.Facing) | uint64(boolByte(s.Lit))<<2
+}
+
+func (SmoothBasalt) Hash() (uint64, uint64) {
+	return hashSmoothBasalt, 0
 }
 
 func (Snow) Hash() (uint64, uint64) {
