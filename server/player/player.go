@@ -1755,7 +1755,7 @@ func (p *Player) UsingItem() bool {
 // returns immediately.
 // UseItemOnBlock does nothing if the block at the cube.Pos passed is of the type block.Air.
 func (p *Player) UseItemOnBlock(pos cube.Pos, face cube.Face, clickPos mgl64.Vec3) {
-	if p.permissionLevel == 1 {
+	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival  {
 		r := p.tx.Range()
 		hasDeny := false
 
