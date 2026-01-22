@@ -62,6 +62,7 @@ const (
 	hashDeepslate
 	hashDeepslateBricks
 	hashDeepslateTiles
+	hashDeny
 	hashDiamond
 	hashDiamondOre
 	hashDiorite
@@ -450,6 +451,10 @@ func (d DeepslateBricks) Hash() (uint64, uint64) {
 
 func (d DeepslateTiles) Hash() (uint64, uint64) {
 	return hashDeepslateTiles, uint64(boolByte(d.Cracked))
+}
+
+func (Deny) Hash() (uint64, uint64) {
+	return hashDeny, 0
 }
 
 func (Diamond) Hash() (uint64, uint64) {
