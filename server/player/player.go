@@ -110,6 +110,8 @@ type playerData struct {
 	once sync.Once
 
 	prevWorld *world.World
+
+	permissionLevel uint32
 }
 
 // Player is an implementation of a player entity. It has methods that implement the behaviour that players
@@ -603,7 +605,7 @@ func (p *Player) fall(distance float64) {
 // final damage dealt to the Player and if the Player was vulnerable to this
 // kind of damage.
 func (p *Player) Hurt(dmg float64, src world.DamageSource) (float64, bool) {
-	if _, ok := p.Effect(effect.FireResistance); (ok && src.Fire()) || p.Dead() || !p.GameMode().AllowsTakingDamage() || dmg < 0 {
+	if _, ok := p.Effect(effect.FireResistance); (ok && src.Fire()) || p.Dead() || !p.GameMode().AllowsTakingDamage() || p.InDeny() || dmg < 0 {
 		return 0, false
 	}
 	totalDamage := p.FinalDamageFrom(dmg, src)
@@ -756,7 +758,7 @@ func (p *Player) SetLaunchY(y float64) {
 // source of the velocity, typically the position of an attacking entity. The source is used to calculate the
 // direction which the entity should be knocked back in.
 func (p *Player) KnockBack(src mgl64.Vec3, force, height float64) {
-	if p.Dead() || !p.GameMode().AllowsTakingDamage() {
+	if p.Dead() || !p.GameMode().AllowsTakingDamage() || p.InDeny() {
 		return
 	}
 	p.knockBack(src, force, height)
@@ -1013,6 +1015,25 @@ func (p *Player) respawn(f func(p *Player)) {
 			f(np)
 		}
 	})
+}
+
+func (p *Player) PermissionLevel() uint32 {
+	return p.permissionLevel
+}
+
+func (p *Player) SetVisitor() {
+	p.permissionLevel = 0
+	p.session().SendAbilities(p)
+}
+
+func (p *Player) SetMember() {
+	p.permissionLevel = 1
+	p.session().SendAbilities(p)
+}
+
+func (p *Player) SetOperator() {
+	p.permissionLevel = 2
+	p.session().SendAbilities(p)
 }
 
 // spawnLocation designates a players safe spawn location.
@@ -1367,13 +1388,40 @@ func (p *Player) Immobile() bool {
 	return p.immobile
 }
 
+// InDeny returns whether the player is currently marked as being in an area of deny blocks.
+// Players in deny blocks are immune to damage and many harmful effects.
+func (p *Player) InDeny() bool {
+	// Get the player's current position and convert to integer coordinates
+	pos := cube.PosFromVec3(p.Position())
+	r := p.tx.Range()
+	hasDeny := false
+
+	// Iterate through the entire vertical range (usually 0 to 255 or -64 to 320)
+	for y := r[0]; y <= r[1]; y++ {
+		// Use the player's X and Z, but the loop's Y
+		checkPos := cube.Pos{pos[0], y, pos[2]}
+
+		if _, ok := p.tx.Block(checkPos).(block.Deny); ok {
+			hasDeny = true
+			break
+		}
+	}
+
+	if hasDeny {
+		// Optional: p.Message("You cannot break blocks in this area.")
+		return true
+	}
+
+	return false // Must return false if no Deny block was found
+}
+
 // FireProof checks if the Player is currently fireproof. True is returned if the player has a fireResistance effect or
 // if it is in creative mode.
 func (p *Player) FireProof() bool {
 	if _, ok := p.Effect(effect.FireResistance); ok {
 		return true
 	}
-	return !p.GameMode().AllowsTakingDamage()
+	return !p.GameMode().AllowsTakingDamage() || p.InDeny()
 }
 
 // OnFireDuration ...
@@ -1707,7 +1755,26 @@ func (p *Player) UsingItem() bool {
 // returns immediately.
 // UseItemOnBlock does nothing if the block at the cube.Pos passed is of the type block.Air.
 func (p *Player) UseItemOnBlock(pos cube.Pos, face cube.Face, clickPos mgl64.Vec3) {
-	if _, ok := p.tx.Block(pos).(block.Air); ok || !p.canReach(pos.Vec3Centre()) {
+	if p.permissionLevel == 1 {
+		r := p.tx.Range()
+		hasDeny := false
+
+		for y := r[0]; y <= r[1]; y++ {
+			checkPos := cube.Pos{pos[0], y, pos[2]}
+			if _, ok := p.tx.Block(checkPos).(block.Deny); ok {
+				hasDeny = true
+				break
+			}
+		}
+
+		if hasDeny {
+			// Optional: Send a message to the player explaining why
+			// p.Message("You cannot break blocks in this area.")
+			p.resendNearbyBlocks(pos, face)
+			return
+		}
+	}
+	if _, ok := p.tx.Block(pos).(block.Air); ok || !p.canReach(pos.Vec3Centre()) || p.permissionLevel == 0 {
 		// The client used its item on a block that does not exist server-side or one it couldn't reach. Stop trying
 		// to use the item immediately.
 		p.resendNearbyBlocks(pos, face)
@@ -1800,6 +1867,9 @@ func (p *Player) AttackEntity(e world.Entity) bool {
 	if !p.canReach(e.Position()) {
 		return false
 	}
+	if p.InDeny() {
+		return false
+	}
 
 	living, isLiving := e.(entity.Living)
 	if isLiving && living.Dead() {
@@ -1880,6 +1950,28 @@ func (p *Player) StartBreaking(pos cube.Pos, face cube.Face) {
 	if _, air := p.tx.Block(pos).(block.Air); air || !p.canReach(pos.Vec3Centre()) {
 		// The block was either out of range or air, so it can't be broken by the player.
 		return
+	}
+	if p.permissionLevel == 0 {
+		// The block was either out of range or air, so it can't be broken by the player.
+		return
+	}
+	if p.permissionLevel == 1 {
+		r := p.tx.Range()
+		hasDeny := false
+
+		for y := r[0]; y <= r[1]; y++ {
+			checkPos := cube.Pos{pos[0], y, pos[2]}
+			if _, ok := p.tx.Block(checkPos).(block.Deny); ok {
+				hasDeny = true
+				break
+			}
+		}
+
+		if hasDeny {
+			// Optional: Send a message to the player explaining why
+			// p.Message("You cannot break blocks in this area.")
+			return
+		}
 	}
 	if _, ok := p.tx.Block(pos.Side(face)).(block.Fire); ok {
 		ctx := event.C(p)
@@ -2016,7 +2108,26 @@ func (p *Player) PlaceBlock(pos cube.Pos, b world.Block, ctx *item.UseContext) {
 // placeBlock makes the player place the block passed at the position passed, granted it is within the range
 // of the player. A bool is returned indicating if a block was placed successfully.
 func (p *Player) placeBlock(pos cube.Pos, b world.Block, ignoreBBox bool) bool {
-	if !p.canReach(pos.Vec3Centre()) || !p.GameMode().AllowsEditing() {
+	if p.permissionLevel == 1 {
+		r := p.tx.Range()
+		hasDeny := false
+
+		for y := r[0]; y <= r[1]; y++ {
+			checkPos := cube.Pos{pos[0], y, pos[2]}
+			if _, ok := p.tx.Block(checkPos).(block.Deny); ok {
+				hasDeny = true
+				break
+			}
+		}
+
+		if hasDeny {
+			// Optional: Send a message to the player explaining why
+			// p.Message("You cannot break blocks in this area.")
+			p.resendNearbyBlocks(pos, cube.Faces()...)
+			return false
+		}
+	}
+	if !p.canReach(pos.Vec3Centre()) || !p.GameMode().AllowsEditing() || p.permissionLevel == 0 {
 		p.resendNearbyBlocks(pos, cube.Faces()...)
 		return false
 	}
@@ -2559,7 +2670,7 @@ func (p *Player) Tick(tx *world.Tx, current int64) {
 
 	if p.OnFireDuration() > 0 {
 		p.fireTicks -= 1
-		if !p.GameMode().AllowsTakingDamage() || p.OnFireDuration() <= 0 || p.tx.RainingAt(cube.PosFromVec3(p.Position())) {
+		if !p.GameMode().AllowsTakingDamage() || p.InDeny() || p.OnFireDuration() <= 0 || p.tx.RainingAt(cube.PosFromVec3(p.Position())) {
 			p.Extinguish()
 		}
 		if p.OnFireDuration()%time.Second == 0 {
