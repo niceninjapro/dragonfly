@@ -1,12 +1,13 @@
 package entity
 
 import (
+	"math/rand/v2"
+	"time"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/df-mc/dragonfly/server/world/sound"
 	"github.com/go-gl/mathgl/mgl64"
-	"math/rand/v2"
-	"time"
 )
 
 // NewLightning creates a lightning entity. The lightning entity will be
@@ -20,6 +21,12 @@ func NewLightning(opts world.EntitySpawnOpts) *world.EntityHandle {
 // NewLightningWithDamage creates a new lightning entities using the damage and
 // fire properties passed.
 func NewLightningWithDamage(opts world.EntitySpawnOpts, dmg float64, blockFire bool, entityFireDuration time.Duration) *world.EntityHandle {
+	// Check if the spawn position is within +/- 100 blocks of 0,0.
+	pos := opts.Position
+	if pos.X() > -100 && pos.X() < 100 && pos.Z() > -100 && pos.Z() < 100 {
+		return nil
+	}
+
 	conf := lightningConf
 	conf.Tick = (&lightningState{
 		Damage:             dmg,
