@@ -1755,7 +1755,7 @@ func (p *Player) UsingItem() bool {
 // returns immediately.
 // UseItemOnBlock does nothing if the block at the cube.Pos passed is of the type block.Air.
 func (p *Player) UseItemOnBlock(pos cube.Pos, face cube.Face, clickPos mgl64.Vec3) {
-	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival  {
+	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
 		r := p.tx.Range()
 		hasDeny := false
 
@@ -2655,6 +2655,15 @@ func (p *Player) Tick(tx *world.Tx, current int64) {
 
 	p.checkBlockCollisions(p.data.Vel)
 	p.onGround = p.checkOnGround(mgl64.Vec3{})
+
+	if current%10 == 0 && p.OnGround() {
+		pos := cube.PosFromVec3(p.Position())
+		if _, ok := p.tx.Block(pos.Side(cube.FaceDown)).(block.Magma); ok {
+			if !p.Sneaking() && !p.FireProof() {
+				p.Hurt(1, block.FireDamageSource{})
+			}
+		}
+	}
 
 	p.effects.Tick(p, p.tx)
 
