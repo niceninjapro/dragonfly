@@ -99,6 +99,7 @@ const (
 	hashGrass
 	hashGravel
 	hashGrindstone
+	hashHangingRoots
 	hashHayBale
 	hashHoneycomb
 	hashHopper
@@ -202,6 +203,7 @@ const (
 	hashTorch
 	hashTuff
 	hashTuffBricks
+	hashUnknown
 	hashVines
 	hashWall
 	hashWater
@@ -600,6 +602,10 @@ func (Gravel) Hash() (uint64, uint64) {
 
 func (g Grindstone) Hash() (uint64, uint64) {
 	return hashGrindstone, uint64(g.Attach.Uint8()) | uint64(g.Facing)<<2
+}
+
+func (HangingRoots) Hash() (uint64, uint64) {
+	return hashHangingRoots, 0
 }
 
 func (h HayBale) Hash() (uint64, uint64) {
@@ -1012,6 +1018,10 @@ func (t Tuff) Hash() (uint64, uint64) {
 
 func (t TuffBricks) Hash() (uint64, uint64) {
 	return hashTuffBricks, uint64(boolByte(t.Chiseled))
+}
+
+func (Unknown) Hash() (uint64, uint64) {
+	return hashUnknown, 0
 }
 
 func (v Vines) Hash() (uint64, uint64) {

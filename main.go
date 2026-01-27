@@ -7,7 +7,6 @@ import (
 
 	"github.com/df-mc/dragonfly/server"
 	"github.com/df-mc/dragonfly/server/player/chat"
-	"github.com/df-mc/dragonfly/server/world"
 	"github.com/pelletier/go-toml"
 )
 
@@ -31,7 +30,6 @@ func main() {
 
 	for p := range srv.Accept() {
 		_ = p
-		p.SetGameMode(world.GameModeSurvival)
 	}
 }
 
