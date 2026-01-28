@@ -211,19 +211,20 @@ func (s *Session) ViewEntityMovement(e world.Entity, pos mgl64.Vec3, rot cube.Ro
 
 // ViewEntityVelocity ...
 func (s *Session) ViewEntityVelocity(e world.Entity, velocity mgl64.Vec3) {
-	runtimeID := s.entityRuntimeID(e)
-	if runtimeID == 0 || s.entityHidden(e) {
+	id := s.entityRuntimeID(e)
+
+	// IF THIS ENTITY IS LOCKED (within the last 200ms), STOP!
+	// This prevents the server from overriding your custom KB.
+	if id == s.syncTarget && time.Since(s.syncTime) < 200*time.Millisecond {
 		return
 	}
 
-	// 1. Check the flag
-	if runtimeID == s.syncTarget && time.Since(s.syncTime) < 150*time.Millisecond {
+	if s.entityHidden(e) {
 		return
 	}
 
-	// 3. Normal Packet (Fixes iPad/Console join issues)
 	s.writePacket(&packet.SetActorMotion{
-		EntityRuntimeID: s.entityRuntimeID(e),
+		EntityRuntimeID: id,
 		Velocity:        vec64To32(velocity),
 	})
 }

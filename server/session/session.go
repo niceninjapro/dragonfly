@@ -21,6 +21,7 @@ import (
 	"github.com/df-mc/dragonfly/server/player/hud"
 	"github.com/df-mc/dragonfly/server/player/skin"
 	"github.com/df-mc/dragonfly/server/world"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/google/uuid"
 	"github.com/sandertv/gophertunnel/minecraft"
@@ -229,6 +230,22 @@ func (s *Session) SetHandle(handle *world.EntityHandle, skin skin.Skin) {
 
 	s.joinSkin = skin
 	sessions.Add(s)
+}
+
+func (s *Session) SyncMotion(vel mgl32.Vec3, e world.Entity) {
+	id := s.entityRuntimeID(e)
+	if id == 0 {
+		return
+	}
+
+	// LOCK: Record who we synced and when.
+	s.syncTarget = id
+	s.syncTime = time.Now()
+
+	s.writePacket(&packet.SetActorMotion{
+		EntityRuntimeID: id,
+		Velocity:        vel,
+	})
 }
 
 // Spawn makes the Controllable passed spawn in the world.World.
