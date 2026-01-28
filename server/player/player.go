@@ -324,6 +324,12 @@ func (p *Player) RemoveBossBar() {
 	p.session().RemoveBossBar()
 }
 
+// SendBlockUpdate sends a block update to the player at a specific position. The block passed does not
+// have to exist in the world at that position; it will only be visible to this player.
+func (p *Player) SendBlockUpdate(pos cube.Pos, b world.Block) {
+	p.session().ViewBlockUpdate(pos, b, 0)
+}
+
 // Chat writes a message in the global chat (chat.Global). The message is prefixed with the name of the
 // player and is formatted following the rules of fmt.Sprintln.
 func (p *Player) Chat(msg ...any) {
