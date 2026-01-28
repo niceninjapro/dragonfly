@@ -10,10 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/df-mc/dragonfly/server/player/debug"
-	"github.com/df-mc/dragonfly/server/player/hud"
-	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
-
 	"github.com/df-mc/dragonfly/server/block"
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/block/model"
@@ -26,8 +22,10 @@ import (
 	"github.com/df-mc/dragonfly/server/item/inventory"
 	"github.com/df-mc/dragonfly/server/player/bossbar"
 	"github.com/df-mc/dragonfly/server/player/chat"
+	"github.com/df-mc/dragonfly/server/player/debug"
 	"github.com/df-mc/dragonfly/server/player/dialogue"
 	"github.com/df-mc/dragonfly/server/player/form"
+	"github.com/df-mc/dragonfly/server/player/hud"
 	"github.com/df-mc/dragonfly/server/player/scoreboard"
 	"github.com/df-mc/dragonfly/server/player/skin"
 	"github.com/df-mc/dragonfly/server/player/title"
@@ -35,6 +33,7 @@ import (
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/df-mc/dragonfly/server/world/particle"
 	"github.com/df-mc/dragonfly/server/world/sound"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/google/uuid"
 	"golang.org/x/text/language"
@@ -240,8 +239,8 @@ func (p *Player) Messagef(f string, a ...any) {
 	p.session().SendMessage(fmt.Sprintf(f, a...))
 }
 
-func (p *Player) SendPacket(pk packet.Packet) {
-	p.session().SendPacket(pk)
+func (p *Player) SyncMotion(velocity mgl32.Vec3) {
+	p.session().SyncMotion(velocity)
 }
 
 // Messaget sends a translatable message to a player and parameterises it using

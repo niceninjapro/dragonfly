@@ -90,9 +90,12 @@ func (s *Session) SendRespawn(pos mgl64.Vec3, c Controllable) {
 	})
 }
 
-// SendPacket sends a packet to the player
-func (s *Session) SendPacket(pk packet.Packet) {
-	s.writePacket(pk)
+// SyncMotion sends a velocity packet to the player
+func (s *Session) SyncMotion(velocity mgl32.Vec3) {
+	s.writePacket(&packet.SetActorMotion{
+		EntityRuntimeID: selfEntityRuntimeID,
+		Velocity:        velocity,
+	})
 }
 
 // SendPlayerSpawn updates the player's spawn point on the client-side. There is currently little reason
