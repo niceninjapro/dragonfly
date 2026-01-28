@@ -33,6 +33,7 @@ import (
 // Session handles incoming packets from connections and sends outgoing packets by providing a thin layer
 // of abstraction over direct packets. A Session basically 'controls' an entity.
 type Session struct {
+	syncing        bool
 	conf           Config
 	once, connOnce sync.Once
 
