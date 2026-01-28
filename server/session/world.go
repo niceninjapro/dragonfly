@@ -213,14 +213,13 @@ func (s *Session) ViewEntityMovement(e world.Entity, pos mgl64.Vec3, rot cube.Ro
 func (s *Session) ViewEntityVelocity(e world.Entity, velocity mgl64.Vec3) {
 	// If the "syncing" flag is up, a custom KB packet is already being handled.
 	// We skip the vanilla one to prevent the "override" feel.
-	if s.syncing {
+	if s.entityHidden(e) {
 		return
 	}
 
 	s.writePacket(&packet.SetActorMotion{
 		EntityRuntimeID: s.entityRuntimeID(e),
 		Velocity:        vec64To32(velocity),
-		Tick:            0,
 	})
 }
 
