@@ -90,13 +90,6 @@ func (s *Session) SendRespawn(pos mgl64.Vec3, c Controllable) {
 	})
 }
 
-func (s *Session) SyncMotion(velocity mgl32.Vec3, e world.Entity) {
-	s.writePacket(&packet.SetActorMotion{
-		EntityRuntimeID: s.entityRuntimeID(e),
-		Velocity:        velocity,
-	})
-}
-
 // SendPlayerSpawn updates the player's spawn point on the client-side. There is currently little reason
 // to do so other than to prevent the client-side "Respawn point set" message when sleeping in a bed.
 func (s *Session) SendPlayerSpawn(pos mgl64.Vec3) {

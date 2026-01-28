@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
+	"math"
 	"math/rand/v2"
 	"strings"
 	"time"
@@ -209,14 +210,47 @@ func (s *Session) ViewEntityMovement(e world.Entity, pos mgl64.Vec3, rot cube.Ro
 	})
 }
 
+func (s *Session) SetSyncing(v bool) {
+	if s != nil {
+		s.syncing = v
+	}
+}
+
 // ViewEntityVelocity ...
 func (s *Session) ViewEntityVelocity(e world.Entity, velocity mgl64.Vec3) {
-	// If the "syncing" flag is up, a custom KB packet is already being handled.
-	// We skip the vanilla one to prevent the "override" feel.
 	if s.entityHidden(e) {
 		return
 	}
 
+	// 1. Check the flag
+	if s.syncing {
+		s.syncing = false // Reset immediately
+
+		// 2. Use the stored position (No more s.p, s.c, or Tx errors!)
+		attackerPos := s.syncPos
+		victimPos := e.Position()
+
+		dx, dz := victimPos.X()-attackerPos.X(), victimPos.Z()-attackerPos.Z()
+		mag := math.Sqrt(dx*dx + dz*dz)
+
+		if mag > 0 {
+			// Your High-Vertical Values
+			force := 0.448
+			height := 0.36
+
+			s.writePacket(&packet.SetActorMotion{
+				EntityRuntimeID: s.entityRuntimeID(e),
+				Velocity: mgl32.Vec3{
+					float32((dx / mag) * force),
+					float32(height),
+					float32((dz / mag) * force),
+				},
+			})
+			return // Stop vanilla packet
+		}
+	}
+
+	// 3. Normal Packet (Fixes iPad/Console join issues)
 	s.writePacket(&packet.SetActorMotion{
 		EntityRuntimeID: s.entityRuntimeID(e),
 		Velocity:        vec64To32(velocity),

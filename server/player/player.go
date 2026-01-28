@@ -33,7 +33,6 @@ import (
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/df-mc/dragonfly/server/world/particle"
 	"github.com/df-mc/dragonfly/server/world/sound"
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/google/uuid"
 	"golang.org/x/text/language"
@@ -237,10 +236,6 @@ func (p *Player) Message(a ...any) {
 // according to the fmt.Sprintf formatting rules.
 func (p *Player) Messagef(f string, a ...any) {
 	p.session().SendMessage(fmt.Sprintf(f, a...))
-}
-
-func (p *Player) SyncMotion(velocity mgl32.Vec3, e world.Entity) {
-	p.session().SyncMotion(velocity, e)
 }
 
 // Messaget sends a translatable message to a player and parameterises it using

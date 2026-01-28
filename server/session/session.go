@@ -33,6 +33,8 @@ import (
 // Session handles incoming packets from connections and sends outgoing packets by providing a thin layer
 // of abstraction over direct packets. A Session basically 'controls' an entity.
 type Session struct {
+	syncing        bool
+	syncPos        mgl64.Vec3
 	conf           Config
 	once, connOnce sync.Once
 
@@ -571,4 +573,11 @@ func (s *Session) sendAvailableEntities(w *world.World) {
 		panic("should never happen")
 	}
 	s.writePacket(&packet.AvailableActorIdentifiers{SerialisedEntityIdentifiers: serializedEntityData})
+}
+
+func (s *Session) SetAttackSync(pos mgl64.Vec3) {
+	if s != nil {
+		s.syncing = true
+		s.syncPos = pos
+	}
 }
