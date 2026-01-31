@@ -125,9 +125,6 @@ func sourceAround(b world.Liquid, pos cube.Pos, tx *world.Tx) (sourcePresent boo
 // flowInto makes the liquid passed flow into the position passed in a world. If successful, the block at that
 // position will be broken and the liquid with a lower depth will replace it.
 func flowInto(b world.Liquid, src, pos cube.Pos, tx *world.Tx, falling bool) bool {
-	if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
-		return false
-	}
 	newDepth := b.LiquidDepth() - b.SpreadDecay()
 	if falling {
 		newDepth = b.LiquidDepth()
@@ -267,10 +264,6 @@ func spreadNeighbour(b world.Liquid, src cube.Pos, tx *world.Tx, node liquidNode
 
 // canFlowInto checks if a liquid can flow into the block present in the world at a specific block position.
 func canFlowInto(b world.Liquid, tx *world.Tx, pos cube.Pos, sideways bool) bool {
-	if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
-		return false
-	}
-
 	bl := tx.Block(pos)
 	if _, air := bl.(Air); air {
 		// Fast route for air: A type assert to a concrete type is much faster than a type assert to an interface.
