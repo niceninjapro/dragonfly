@@ -66,9 +66,6 @@ type playerData struct {
 	glideTicks          int64
 	fireTicks           int64
 	fallDistance        float64
-	windBurstY          float64
-	windChargeProtected bool
-	launchY             float64
 
 	breathing         bool
 	airSupplyTicks    int
@@ -572,27 +569,7 @@ func (p *Player) fall(distance float64) {
 	if h, ok := b.(block.EntityLander); ok {
 		h.EntityLand(pos, p.tx, p, &distance)
 	}
-
-	// Landing in a web cancels fall damage: web slows entities and should be
-	// treated as a safe landing. Reset fall distance and return early.
-	if _, ok := b.(block.Web); ok {
-		p.ResetFallDistance()
-		return
-	}
-
-	currentY := p.Position()[1]
-	var effectiveFallDistance float64
-	if p.launchY != 0 && currentY >= p.launchY {
-		effectiveFallDistance = 0
-		p.launchY = 0 // Reset
-	} else if p.launchY != 0 {
-		effectiveFallDistance = p.launchY - currentY
-		p.launchY = 0 // Reset
-	} else {
-		effectiveFallDistance = distance
-	}
-
-	dmg := effectiveFallDistance - 3
+	dmg := distance - 3
 	if boost, ok := p.Effect(effect.JumpBoost); ok {
 		dmg -= float64(boost.Level())
 	}
