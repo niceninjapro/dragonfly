@@ -25,7 +25,6 @@ var DefaultRegistry = conf.New([]world.EntityType{
 	SplashPotionType,
 	TNTType,
 	TextType,
-	WindChargeType,
 })
 
 var conf = world.EntityRegistryConfig{
@@ -36,7 +35,6 @@ var conf = world.EntityRegistryConfig{
 	EnderPearl:         NewEnderPearl,
 	FallingBlock:       NewFallingBlock,
 	Lightning:          NewLightning,
-	WindCharge:         NewWindCharge,
 	Firework: func(opts world.EntitySpawnOpts, firework world.Item, owner world.Entity, sidewaysVelocityMultiplier, upwardsAcceleration float64, attached bool) *world.EntityHandle {
 		return newFirework(opts, firework.(item.Firework), owner, sidewaysVelocityMultiplier, upwardsAcceleration, attached)
 	},
