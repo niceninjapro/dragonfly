@@ -149,7 +149,7 @@ func (c ExplosionConfig) Explode(tx *world.Tx, explosionPos mgl64.Vec3) {
 	}
 
 	for _, pos := range affectedBlocks {
-		if hasDeny(tx, pos[0], pos[2]) {
+		if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
 			continue
 		}
 		bl := tx.Block(pos)
