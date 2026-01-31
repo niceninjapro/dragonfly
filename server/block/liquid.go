@@ -267,8 +267,7 @@ func spreadNeighbour(b world.Liquid, src cube.Pos, tx *world.Tx, node liquidNode
 
 // canFlowInto checks if a liquid can flow into the block present in the world at a specific block position.
 func canFlowInto(b world.Liquid, tx *world.Tx, pos cube.Pos, sideways bool) bool {
-	// Before checking air or block types, we check if the target column is protected by a Deny block.
-	if hasDeny(tx, pos[0], pos[2]) {
+	if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
 		return false
 	}
 
@@ -375,16 +374,4 @@ func (q *liquidQueue) Reset() {
 	q.nodes = q.nodes[:0]
 	q.i = 0
 	q.shortestPath = math.MaxInt8
-}
-
-func hasDeny(tx *world.Tx, x, z int) bool {
-	r := tx.Range()
-	// Loop through the entire vertical column (from bottom to top of the world)
-	for y := r.Min(); y <= r.Max(); y++ {
-		// Replace 'Deny' with the actual name of your Deny block struct if it differs
-		if _, ok := tx.Block(cube.Pos{x, y, z}).(Deny); ok {
-			return true
-		}
-	}
-	return false
 }
