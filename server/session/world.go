@@ -211,20 +211,12 @@ func (s *Session) ViewEntityMovement(e world.Entity, pos mgl64.Vec3, rot cube.Ro
 
 // ViewEntityVelocity ...
 func (s *Session) ViewEntityVelocity(e world.Entity, velocity mgl64.Vec3) {
-	id := s.entityRuntimeID(e)
-
-	// IF THIS ENTITY IS LOCKED (within the last 200ms), STOP!
-	// This prevents the server from overriding your custom KB.
-	if id == s.syncTarget && time.Since(s.syncTime) < 200*time.Millisecond {
-		return
-	}
-
 	if s.entityHidden(e) {
 		return
 	}
 
 	s.writePacket(&packet.SetActorMotion{
-		EntityRuntimeID: id,
+		EntityRuntimeID: s.entityRuntimeID(e),
 		Velocity:        vec64To32(velocity),
 	})
 }
@@ -389,11 +381,6 @@ func (s *Session) ViewParticle(pos mgl64.Vec3, p world.Particle) {
 			EventType: packet.LevelEventParticlesExplosion,
 			Position:  vec64To32(pos),
 		})
-	case particle.WindCharge:
-		s.writePacket(&packet.LevelEvent{
-			EventType: packet.LevelEventParticlesWindExplosion,
-			Position:  vec64To32(pos),
-		})
 	case particle.BoneMeal:
 		s.writePacket(&packet.LevelEvent{
 			EventType: packet.LevelEventParticleCropGrowth,
@@ -556,8 +543,6 @@ func (s *Session) playSound(pos mgl64.Vec3, t world.Sound, disableRelative bool)
 		return
 	case sound.Explosion:
 		pk.SoundType = packet.SoundEventExplode
-	case sound.WindCharge:
-		pk.SoundType = packet.SoundEventWindChargeBurst
 	case sound.Thunder:
 		pk.SoundType, pk.EntityType = packet.SoundEventThunder, "minecraft:lightning_bolt"
 	case sound.Click:
