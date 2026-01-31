@@ -149,9 +149,6 @@ func (c ExplosionConfig) Explode(tx *world.Tx, explosionPos mgl64.Vec3) {
 	}
 
 	for _, pos := range affectedBlocks {
-		if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
-			continue
-		}
 		bl := tx.Block(pos)
 		if explodable, ok := bl.(Explodable); ok {
 			explodable.Explode(explosionPos, pos, tx, c)
