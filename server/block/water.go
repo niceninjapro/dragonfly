@@ -110,9 +110,6 @@ func (w Water) ScheduledTick(pos cube.Pos, tx *world.Tx, _ *rand.Rand) {
 			if !canFlowInto(w, tx, pos.Side(cube.FaceDown), true) {
 				// Only form a new source block if there either is no water below this block, or if the water
 				// below this is not falling (full source block).
-				if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
-					return
-				}
 				res := Water{Depth: 8, Still: true}
 				ctx := event.C(tx)
 				if tx.World().Handler().HandleLiquidFlow(ctx, pos, pos, res, w); ctx.Cancelled() {
