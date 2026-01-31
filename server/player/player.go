@@ -2577,15 +2577,6 @@ func (p *Player) Tick(tx *world.Tx, current int64) {
 	p.checkBlockCollisions(p.data.Vel)
 	p.onGround = p.checkOnGround(mgl64.Vec3{})
 
-	if current%10 == 0 && p.OnGround() {
-		pos := cube.PosFromVec3(p.Position())
-		if _, ok := p.tx.Block(pos.Side(cube.FaceDown)).(block.Magma); ok {
-			if !p.Sneaking() && !p.FireProof() {
-				p.Hurt(1, block.FireDamageSource{})
-			}
-		}
-	}
-
 	p.effects.Tick(p, p.tx)
 
 	p.tickFood()
