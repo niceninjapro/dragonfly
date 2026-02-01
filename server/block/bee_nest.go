@@ -78,3 +78,21 @@ func (b BeeNest) EncodeBlock() (string, map[string]any) {
 func allBeeNests() []world.Block {
 	return BeeNest{}.EncodeAll()
 }
+
+// DecodeNBT decodes the properties of the Bee Nest from the NBT data map.
+func (b BeeNest) DecodeNBT(data map[string]any) any {
+	// If you add a HoneyLevel field to your struct later, you would load it here.
+	// For example:
+	// if honey, ok := data["HoneyLevel"].(int32); ok {
+	//     b.HoneyLevel = int(honey)
+	// }
+	return b
+}
+
+// EncodeNBT encodes the properties of the Bee Nest into a map to be saved as NBT.
+func (b BeeNest) EncodeNBT() map[string]any {
+	// If you add HoneyLevel or Bees later, you would save them here.
+	return map[string]any{
+		"id": "BeeNest", // This helps Dragonfly identify the tile entity type
+	}
+}
