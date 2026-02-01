@@ -94,7 +94,7 @@ func (Water) LightDiffusionLevel() uint8 {
 
 // ScheduledTick ...
 func (w Water) ScheduledTick(pos cube.Pos, tx *world.Tx, _ *rand.Rand) {
-	if w.Depth == 7 {
+	if w.Depth == 7 && (pos[0] < -64 || pos[0] > 64 || pos[2] < -64 || pos[2] > 64) {
 		// Attempt to form new water source blocks.
 		count := 0
 		pos.Neighbours(func(neighbour cube.Pos) {
