@@ -1706,7 +1706,7 @@ func (p *Player) UseItemOnBlock(pos cube.Pos, face cube.Face, clickPos mgl64.Vec
 	if p.permissionLevel == 0 {
 		return
 	}
-	if p.permissionLevel == 1 {
+	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
 		x, z := pos.X(), pos.Z()
 		if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
 			return
@@ -1893,7 +1893,7 @@ func (p *Player) StartBreaking(pos cube.Pos, face cube.Face) {
 		// The block was either out of range or air, so it can't be broken by the player.
 		return
 	}
-	if p.permissionLevel == 1 {
+	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
 		x, z := pos.X(), pos.Z()
 		if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
 			return
@@ -2037,7 +2037,7 @@ func (p *Player) placeBlock(pos cube.Pos, b world.Block, ignoreBBox bool) bool {
 	if p.permissionLevel == 0 {
 		return false
 	}
-	if p.permissionLevel == 1 {
+	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
 		x, z := pos.X(), pos.Z()
 		if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
 			return false
