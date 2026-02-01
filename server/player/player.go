@@ -5,7 +5,6 @@ import (
 	"math"
 	"math/rand/v2"
 	"net"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -62,9 +61,9 @@ type playerData struct {
 
 	usingSince time.Time
 
-	glideTicks          int64
-	fireTicks           int64
-	fallDistance        float64
+	glideTicks   int64
+	fireTicks    int64
+	fallDistance float64
 
 	breathing         bool
 	airSupplyTicks    int
@@ -108,6 +107,7 @@ type playerData struct {
 	prevWorld *world.World
 
 	permissionLevel uint32
+	collisionBuf    []cube.BBox
 }
 
 // Player is an implementation of a player entity. It has methods that implement the behaviour that players
@@ -2786,7 +2786,7 @@ func (p *Player) insideOfSolid() bool {
 
 // checkCollisions checks the player's block collisions.
 func (p *Player) checkBlockCollisions(vel mgl64.Vec3) {
-	entityBBox := Type.BBox(p).Translate(p.Position())
+	entityBBox := p.H().Type().BBox(p).Translate(p.Position()) // Fixed: 'Type' -> 'p.H().Type()'
 	deltaX, deltaY, deltaZ := vel[0], vel[1], vel[2]
 
 	p.checkEntityInsiders(entityBBox)
@@ -2796,8 +2796,10 @@ func (p *Player) checkBlockCollisions(vel mgl64.Vec3) {
 	minX, minY, minZ := int(math.Floor(low[0])), int(math.Floor(low[1])), int(math.Floor(low[2]))
 	maxX, maxY, maxZ := int(math.Ceil(high[0])), int(math.Ceil(high[1])), int(math.Ceil(high[2]))
 
-	// A prediction of one BBox per block, plus an additional 2, in case
-	blocks := make([]cube.BBox, 0, (maxX-minX)*(maxY-minY)*(maxZ-minZ)+2)
+	// OPTIMIZATION: Reuse the pre-allocated slice to avoid heap allocation every tick.
+	// We reset the length to 0 but keep the capacity.
+	blocks := p.collisionBuf[:0]
+
 	for y := minY; y <= maxY; y++ {
 		for x := minX; x <= maxX; x++ {
 			for z := minZ; z <= maxZ; z++ {
@@ -2809,6 +2811,8 @@ func (p *Player) checkBlockCollisions(vel mgl64.Vec3) {
 			}
 		}
 	}
+	// Save the buffer back to the player for the next tick
+	p.collisionBuf = blocks
 
 	// epsilon is the epsilon used for thresholds for change used for change in position and velocity.
 	const epsilon = 0.001
@@ -3307,11 +3311,21 @@ func (p *Player) broadcastArmour(_ int, before, after item.Stack) {
 // viewers returns a list of all viewers of the Player.
 func (p *Player) viewers() []world.Viewer {
 	viewers := p.tx.Viewers(p.Position())
-	var s world.Viewer = p.session()
-	if slices.Index(viewers, s) == -1 && p.s != nil {
-		return append(viewers, p.s)
+	// OPTIMIZATION: Only perform the slice search if we actually have a session
+	if p.s == nil {
+		return viewers
 	}
-	return viewers
+
+	// Check if the session is already in the viewers list (it usually is).
+	// This avoids the allocation of 'append' in the common case.
+	for _, v := range viewers {
+		if v == p.s {
+			return viewers
+		}
+	}
+
+	// Only allocate a new slice if absolutely necessary (e.g. desync or initial join)
+	return append(viewers, p.s)
 }
 
 // withinChunkRadius checks if the position provided is within the chunk radius of the player.
@@ -3363,5 +3377,11 @@ func (p *Player) resendNearbyBlock(pos cube.Pos) {
 // format is a utility function to format a list of values to have spaces between them, but no newline at the
 // end, which is typically used for sending messages, popups and tips.
 func format(a []any) string {
+	// OPTIMIZATION: Fast path for simple strings to avoid reflection overhead
+	if len(a) == 1 {
+		if s, ok := a[0].(string); ok {
+			return s
+		}
+	}
 	return strings.TrimSuffix(strings.TrimSuffix(fmt.Sprintln(a...), "\n"), "\n")
 }
