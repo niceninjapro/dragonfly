@@ -30,7 +30,6 @@ func (w weather) snowingAt(pos cube.Pos) bool {
 	}
 
 	b := w.w.biome(pos)
-	// If the biome isn't recognized, we can't determine snow, so return false to stay safe.
 	if b == nil {
 		return false
 	}
@@ -55,7 +54,6 @@ func (w weather) rainingAt(pos cube.Pos) bool {
 	}
 
 	b := w.w.biome(pos)
-	// Add the nil check here. If the biome is unknown, we exit early.
 	if b == nil {
 		return false
 	}

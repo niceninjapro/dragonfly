@@ -24,7 +24,6 @@ func main() {
 	srv.Listen()
 	for p := range srv.Accept() {
 		_ = p
-		p.SetOperator()
 	}
 }
 
