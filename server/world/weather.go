@@ -28,9 +28,17 @@ func (w weather) snowingAt(pos cube.Pos) bool {
 	if w.w == nil || !w.w.Dimension().WeatherCycle() {
 		return false
 	}
-	if b := w.w.biome(pos); b.Rainfall() == 0 || w.w.temperature(pos) > 0.15 {
+
+	b := w.w.biome(pos)
+	// If the biome isn't recognized, we can't determine snow, so return false to stay safe.
+	if b == nil {
 		return false
 	}
+
+	if b.Rainfall() == 0 || w.w.temperature(pos) > 0.15 {
+		return false
+	}
+
 	w.w.set.Lock()
 	raining := w.w.set.Raining
 	w.w.set.Unlock()
@@ -45,9 +53,17 @@ func (w weather) rainingAt(pos cube.Pos) bool {
 	if w.w == nil || !w.w.Dimension().WeatherCycle() {
 		return false
 	}
-	if b := w.w.biome(pos); b.Rainfall() == 0 || w.w.temperature(pos) <= 0.15 {
+
+	b := w.w.biome(pos)
+	// Add the nil check here. If the biome is unknown, we exit early.
+	if b == nil {
 		return false
 	}
+
+	if b.Rainfall() == 0 || w.w.temperature(pos) <= 0.15 {
+		return false
+	}
+
 	w.w.set.Lock()
 	a := w.w.set.Raining
 	w.w.set.Unlock()
