@@ -138,6 +138,8 @@ func (conf Config) New() *Server {
 	if conf.PlayerProvider == nil {
 		conf.PlayerProvider = player.NopProvider{}
 	}
+	// Set package-level player provider so player.Save() can use it.
+	player.SetProvider(conf.PlayerProvider)
 	if conf.Allower == nil {
 		conf.Allower = allower{}
 	}

@@ -3232,6 +3232,12 @@ func (p *Player) Data() Config {
 	}
 }
 
+// Save saves the player's data using the configured player Provider. It uses
+// the same data that would be saved on disconnect.
+func (p *Player) Save() error {
+	return provider.Save(p.UUID(), p.Data(), p.tx.World())
+}
+
 // session returns the network session of the player. If it has one, it is returned. If not, a no-op session
 // is returned.
 func (p *Player) session() *session.Session {

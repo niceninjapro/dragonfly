@@ -2,9 +2,10 @@ package player
 
 import (
 	"errors"
+	"io"
+
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/google/uuid"
-	"io"
 )
 
 // Provider represents a value that may provide data to a Player value. It usually does the reading and
@@ -31,3 +32,18 @@ func (NopProvider) Load(uuid.UUID, func(world.Dimension) *world.World) (Config, 
 	return Config{}, nil, errors.New("")
 }
 func (NopProvider) Close() error { return nil }
+
+// provider is the player data provider used by package-level save/load helpers.
+var provider Provider = NopProvider{}
+
+// SetProvider sets the package-level player Provider used by functions such as
+// Player.Save(). The server sets this to the configured provider on startup.
+func SetProvider(p Provider) {
+	if p == nil {
+		p = NopProvider{}
+	}
+	provider = p
+}
+
+// GetProvider returns the currently configured package-level Provider.
+func GetProvider() Provider { return provider }
