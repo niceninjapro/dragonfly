@@ -189,6 +189,9 @@ func (w *World) biome(pos cube.Pos) Biome {
 	b, ok := BiomeByID(id)
 	if !ok {
 		w.conf.Log.Error("biome not found by ID", "ID", id)
+		// Return a safe default biome to avoid nil pointer dereferences when
+		// an invalid biome ID is encountered in world data.
+		return ocean()
 	}
 	return b
 }
