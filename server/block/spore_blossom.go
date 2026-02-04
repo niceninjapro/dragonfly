@@ -63,3 +63,13 @@ func (s SporeBlossom) EncodeItem() (name string, meta int16) {
 func (s SporeBlossom) EncodeBlock() (string, map[string]any) {
 	return "minecraft:spore_blossom", nil
 }
+
+// DecodeNBT ...
+func (s SporeBlossom) DecodeNBT(data map[string]any) any {
+	return s
+}
+
+// EncodeNBT ...
+func (s SporeBlossom) EncodeNBT() map[string]any {
+	return nil
+}
