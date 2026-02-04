@@ -5,6 +5,12 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"math/rand/v2"
+	"os"
+	"path/filepath"
+	"slices"
+	"time"
+
 	"github.com/df-mc/dragonfly/server/block/cube"
 	"github.com/df-mc/dragonfly/server/world"
 	"github.com/df-mc/dragonfly/server/world/chunk"
@@ -12,11 +18,6 @@ import (
 	"github.com/df-mc/goleveldb/leveldb"
 	"github.com/google/uuid"
 	"github.com/sandertv/gophertunnel/minecraft/nbt"
-	"math/rand/v2"
-	"os"
-	"path/filepath"
-	"slices"
-	"time"
 )
 
 // DB implements a world provider for the Minecraft world format, which
@@ -433,6 +434,9 @@ func (db *DB) storeBlockEntities(batch *leveldb.Batch, k dbKey, blockEntities []
 	buf := bytes.NewBuffer(nil)
 	enc := nbt.NewEncoderWithEncoding(buf, nbt.LittleEndian)
 	for _, b := range blockEntities {
+		if b.Data == nil {
+			b.Data = map[string]any{}
+		}
 		b.Data["x"], b.Data["y"], b.Data["z"] = int32(b.Pos[0]), int32(b.Pos[1]), int32(b.Pos[2])
 		if err := enc.Encode(b.Data); err != nil {
 			db.conf.Log.Error("store block entities: encode nbt: " + err.Error())

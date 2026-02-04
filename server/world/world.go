@@ -1287,7 +1287,13 @@ func (w *World) columnTo(col *Column, pos ChunkPos) *chunk.Column {
 		c.Entities = append(c.Entities, chunk.Entity{ID: int64(binary.LittleEndian.Uint64(e.id[8:])), Data: data})
 	}
 	for pos, be := range col.BlockEntities {
-		c.BlockEntities = append(c.BlockEntities, chunk.BlockEntity{Pos: pos, Data: be.(NBTer).EncodeNBT()})
+		if n, ok := be.(NBTer); ok {
+			data := n.EncodeNBT()
+			if data == nil {
+				data = map[string]any{}
+			}
+			c.BlockEntities = append(c.BlockEntities, chunk.BlockEntity{Pos: pos, Data: data})
+		}
 	}
 	for _, t := range scheduled {
 		c.ScheduledBlocks = append(c.ScheduledBlocks, chunk.ScheduledBlockUpdate{Pos: t.pos, Block: BlockRuntimeID(t.b), Tick: t.t})
