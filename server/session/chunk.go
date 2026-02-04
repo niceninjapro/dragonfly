@@ -119,6 +119,9 @@ func (s *Session) subChunkEntry(offset protocol.SubChunkOffset, ind int16, col *
 	}
 	if s.conn.ClientCacheEnabled() {
 		if hash := xxhash.Sum64(serialisedSubChunk); s.trackBlob(hash, serialisedSubChunk) {
+			if transaction == nil {
+				transaction = make(map[uint64]struct{})
+			}
 			transaction[hash] = struct{}{}
 
 			entry.BlobHash = hash
