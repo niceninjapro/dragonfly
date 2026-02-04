@@ -188,7 +188,7 @@ func (w *World) biome(pos cube.Pos) Biome {
 	id := int(w.chunk(chunkPosFromBlockPos(pos)).Biome(uint8(pos[0]), int16(pos[1]), uint8(pos[2])))
 	b, ok := BiomeByID(id)
 	if !ok {
-		w.conf.Log.Error("biome not found by ID", "ID", id)
+		//w.conf.Log.Error("biome not found by ID", "ID", id)
 		// Return a safe default biome to avoid nil pointer dereferences when
 		// an invalid biome ID is encountered in world data.
 		return ocean()
