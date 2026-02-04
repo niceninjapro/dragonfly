@@ -1311,7 +1311,8 @@ func (w *World) columnFrom(c *chunk.Column, _ ChunkPos) *Column {
 		}
 		t, ok := w.conf.Entities.Lookup(eid)
 		if !ok {
-			w.conf.Log.Error("read column: unknown entity type", "ID", e.ID, "type", eid)
+			// Unknown entity types from saved data are ignored to avoid
+			// excessive logging and potential lag caused by frequent I/O.
 			continue
 		}
 		col.Entities = append(col.Entities, entityFromData(t, e.ID, e.Data))
