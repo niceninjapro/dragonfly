@@ -248,7 +248,7 @@ func (db *DB) entities(k dbKey) ([]chunk.Entity, error) {
 		}
 		ent := chunk.Entity{ID: id, Data: make(map[string]any)}
 		if err = nbt.UnmarshalEncoding(data, &ent.Data, nbt.LittleEndian); err != nil {
-			db.conf.Log.Error("decode entity nbt: "+err.Error(), "ID", id)
+			db.conf.Log.Debug("decode entity nbt: "+err.Error(), "ID", id)
 		}
 		entities = append(entities, ent)
 	}
@@ -272,7 +272,7 @@ func (db *DB) entitiesOld(k dbKey) ([]chunk.Entity, error) {
 		}
 		ent.ID, ok = ent.Data["UniqueID"].(int64)
 		if !ok {
-			db.conf.Log.Error("missing unique ID field, generating random", "data", fmt.Sprint(ent.Data))
+			db.conf.Log.Debug("missing unique ID field, generating random", "data", fmt.Sprint(ent.Data))
 			ent.ID = rand.Int64()
 		}
 		entities = append(entities, ent)

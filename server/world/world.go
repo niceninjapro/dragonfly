@@ -1312,7 +1312,7 @@ func (w *World) columnFrom(c *chunk.Column, _ ChunkPos) *Column {
 	for _, e := range c.Entities {
 		eid, ok := e.Data["identifier"].(string)
 		if !ok {
-			w.conf.Log.Error("read column: entity without identifier field", "ID", e.ID)
+			w.conf.Log.Debug("read column: entity without identifier field", "ID", e.ID)
 			continue
 		}
 		t, ok := w.conf.Entities.Lookup(eid)
