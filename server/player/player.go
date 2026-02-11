@@ -1895,7 +1895,7 @@ func (p *Player) StartBreaking(pos cube.Pos, face cube.Face) {
 	}
 	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
 		x, z := pos.X(), pos.Z()
-		if x >= -64 && x < 64 && z >= -64 && z < 64 {
+		if x >= -64 && x <= 63 && z >= -64 && z <= 63 {
 			return
 		}
 	}
@@ -2039,7 +2039,7 @@ func (p *Player) placeBlock(pos cube.Pos, b world.Block, ignoreBBox bool) bool {
 	}
 	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
 		x, z := pos.X(), pos.Z()
-		if x >= -64 && x < 64 && z >= -64 && z < 64 {
+		if x >= -64 && x <= 63 && z >= -64 && z <= 63 {
 			return false
 		}
 	}
