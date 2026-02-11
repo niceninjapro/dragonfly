@@ -1363,6 +1363,15 @@ func (p *Player) InSpawn() bool {
 	return false
 }
 
+// IsBlockInSpawn checks if a specific block coordinate is within the 128x128 spawn zone.
+func IsBlockInSpawn(x, z int) bool {
+	// A 128-block wide area centered on the axis gap:
+	// Negative side: -64 to -1  (64 blocks)
+	// Positive side:  0 to 63  (64 blocks)
+	// Total: 128 blocks
+	return x >= -64 && x < 64 && z >= -64 && z < 64
+}
+
 // FireProof checks if the Player is currently fireproof. True is returned if the player has a fireResistance effect or
 // if it is in creative mode.
 func (p *Player) FireProof() bool {
@@ -1707,8 +1716,7 @@ func (p *Player) UseItemOnBlock(pos cube.Pos, face cube.Face, clickPos mgl64.Vec
 		return
 	}
 	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
-		x, z := pos.X(), pos.Z()
-		if x >= -64 && x <= 64 && z >= -64 && z <= 64 {
+		if IsBlockInSpawn(pos.X(), pos.Z()) {
 			return
 		}
 	}
@@ -1894,8 +1902,7 @@ func (p *Player) StartBreaking(pos cube.Pos, face cube.Face) {
 		return
 	}
 	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
-		x, z := pos.X(), pos.Z()
-		if x >= -64 && x <= 63 && z >= -64 && z <= 63 {
+		if IsBlockInSpawn(pos.X(), pos.Z()) {
 			return
 		}
 	}
@@ -2038,8 +2045,7 @@ func (p *Player) placeBlock(pos cube.Pos, b world.Block, ignoreBBox bool) bool {
 		return false
 	}
 	if p.permissionLevel == 1 || p.gameMode == world.GameModeSurvival {
-		x, z := pos.X(), pos.Z()
-		if x >= -64 && x <= 62 && z >= -64 && z <= 62 {
+		if IsBlockInSpawn(pos.X(), pos.Z()) {
 			return false
 		}
 	}
