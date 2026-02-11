@@ -149,7 +149,7 @@ func (c ExplosionConfig) Explode(tx *world.Tx, explosionPos mgl64.Vec3) {
 	}
 
 	for _, pos := range affectedBlocks {
-		if pos[0] >= -64 && pos[0] <= 64 && pos[2] >= -64 && pos[2] <= 64 {
+		if pos[0] >= -64 && pos[0] < 64 && pos[2] >= -64 && pos[2] < 64 {
 			continue
 		}
 		bl := tx.Block(pos)
@@ -171,7 +171,7 @@ func (c ExplosionConfig) Explode(tx *world.Tx, explosionPos mgl64.Vec3) {
 
 	if spawnFire {
 		for _, pos := range affectedBlocks {
-			if pos[0] >= -64 && pos[0] <= 64 && pos[2] >= -64 && pos[2] <= 64 {
+			if pos[0] >= -64 && pos[0] < 64 && pos[2] >= -64 && pos[2] < 64 {
 				continue
 			}
 			if r.IntN(3) == 0 {
